@@ -32,14 +32,17 @@ With L<Module::Build>:
 
 =cut
 
-use Config;
+use Config ();
 use File::Basename qw();
 
 our $VERSION = '0.01';
 
 sub new {
     my( $class, %args ) = @_;
-    my $self = bless \%args, $class;
+    my $self = bless {
+      cc => $Config::Config{cc},
+      %args
+    }, $class;
 
     return $self;
 }
@@ -49,9 +52,9 @@ sub guess_compiler {
     return $self->{guess} if $self->{guess};
 
     if( $^O =~ /^mswin/i ) {
-        _guess_win32( $self );
+        $self->_guess_win32();
     } else {
-        _guess_unix( $self );
+        $self->_guess_unix();
     }
 }
 
@@ -75,7 +78,8 @@ sub module_build_options {
 
 sub _guess_win32 {
     my( $self ) = @_;
-    my $c_compiler = $Config{cc};
+    my $c_compiler = $self->{cc};
+    $c_compiler = $Config::Config{cc} if not defined $c_compiler;
 
     if( _cc_is_gcc( $c_compiler ) ) {
         $self->{guess} = { extra_cflags => ' -xc++ ',
@@ -92,7 +96,8 @@ sub _guess_win32 {
 
 sub _guess_unix {
     my( $self ) = @_;
-    my $c_compiler = $Config{cc};
+    my $c_compiler = $self->{cc};
+    $c_compiler = $Config::Config{cc} if not defined $c_compiler;
 
     if( !_cc_is_gcc( $c_compiler ) ) {
         die "Unable to determine a C++ compiler for '$c_compiler'";
