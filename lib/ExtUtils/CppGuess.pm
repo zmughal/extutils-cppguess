@@ -12,9 +12,9 @@ ExtUtils::CppGuess - guess C++ compiler and flags
 With L<Extutils::MakeMaker>:
 
     use ExtUtils::CppGuess;
-
+    
     my $guess = ExtUtils::CppGuess->new;
-
+    
     WriteMakefile
       ( # MakeMaker args,
         $guess->makemaker_options,
@@ -23,7 +23,7 @@ With L<Extutils::MakeMaker>:
 With L<Module::Build>:
 
     my $guess = ExtUtils::CppGuess->new;
-
+    
     my $build = Module::Build->new
       ( # Module::Build arguments
         $guess->module_build_options,
@@ -38,8 +38,8 @@ use File::Basename qw();
 our $VERSION = '0.01';
 
 sub new {
-    my( $class ) = @_;
-    my $self = bless {}, $class;
+    my( $class, %args ) = @_;
+    my $self = bless \%args, $class;
 
     return $self;
 }
