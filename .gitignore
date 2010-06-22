@@ -11,3 +11,5 @@ t/module_build
 *.lib
 *.exp
 pod2htm?.tmp
+*.swp
+*.swo
