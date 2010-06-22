@@ -30,6 +30,48 @@ With L<Module::Build>:
         );
     $build->create_build_script;
 
+=head1 DESCRIPTION
+
+C<ExtUtils::CppGuess> attempts to guess the system's C++ compiler
+that is compatible with the C compiler that your perl was built with.
+
+It can generate the necessary options to the L<Module::Build>
+constructor or to L<ExtUtils::MakeMaker>'s C<WriteMakefile>
+function.
+
+=head1 METHODS
+
+=head2 new
+
+Creates a new C<ExtUtils::CppGuess> object.
+Takes the path to the C compiler as the C<cc> argument,
+but falls back to the value of C<$Config{cc}>, which should
+be what you want anyway.
+
+You can specify C<extra_compiler_flags> and C<extra_linker_flags>
+(as strings) which will be merged in with the auto-detected ones.
+
+=head2 module_build_options
+
+Returns the correct options to the constructor of C<Module::Build>.
+These are:
+
+    extra_compiler_flags
+    extra_linker_flags
+
+=head2 makemaker_options
+
+Returns the correct options to the C<WriteMakefile> function of
+C<ExtUtils::MakeMaker>.
+These are:
+
+    CCFLAGS
+    dynamic_lib => { OTHERLDFLAGS => ... }
+
+If you specify the extra compiler or linker flags in the
+constructor, they'll be merged into C<CCFLAGS> or
+C<OTHERLDFLAGS> respectively.
+
 =cut
 
 use Config ();
@@ -52,15 +94,23 @@ sub guess_compiler {
     return $self->{guess} if $self->{guess};
 
     if( $^O =~ /^mswin/i ) {
-        $self->_guess_win32();
+        $self->_guess_win32() or return();
     } else {
-        $self->_guess_unix();
+        $self->_guess_unix() or return();
+    }
+
+    if (defined $self->{extra_compiler_flags}) {
+        $self->{guess}{extra_cflags} .= ' ' . $self->{extra_compiler_flags};
+    }
+
+    if (defined $self->{extra_linker_flags}) {
+        $self->{guess}{extra_lflags} .= ' ' . $self->{extra_linker_flags};
     }
 }
 
 sub makemaker_options {
     my( $self ) = @_;
-    my $g = $self->guess_compiler || die;
+    $self->guess_compiler || die;
 
     return ( CCFLAGS      => $self->{guess}{extra_cflags},
              dynamic_lib  => { OTHERLDFLAGS => $self->{guess}{extra_lflags} },
@@ -69,7 +119,7 @@ sub makemaker_options {
 
 sub module_build_options {
     my( $self ) = @_;
-    my $g = $self->guess_compiler || die;
+    $self->guess_compiler || die;
 
     return ( extra_compiler_flags => $self->{guess}{extra_cflags},
              extra_linker_flags   => $self->{guess}{extra_lflags},
@@ -92,6 +142,8 @@ sub _guess_win32 {
     } else {
         die "Unable to determine a C++ compiler for '$c_compiler'";
     }
+
+    return 1;
 }
 
 sub _guess_unix {
@@ -106,6 +158,7 @@ sub _guess_unix {
     $self->{guess} = { extra_cflags => ' -xc++ ',
                        extra_lflags => ' -lstdc++ ',
                        };
+    return 1;
 }
 
 # from Alien::wxWidgets::Utility
