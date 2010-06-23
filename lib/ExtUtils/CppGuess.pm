@@ -178,7 +178,7 @@ sub _cc_is_msvc {
 sub _cc_is_gcc {
     my( $cc ) = @_;
 
-    return    scalar( _capture( "$cc --version" ) =~ m/g(cc|\+\+)/i ) # 3.x
+    return    scalar( _capture( "$cc --version" ) =~ m/g(?:cc|\+\+)/i ) # 3.x
            || scalar( _capture( "$cc" ) =~ m/gcc/i );          # 2.95
 }
 
