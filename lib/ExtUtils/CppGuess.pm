@@ -72,6 +72,14 @@ If you specify the extra compiler or linker flags in the
 constructor, they'll be merged into C<CCFLAGS> or
 C<OTHERLDFLAGS> respectively.
 
+=head2 is_gcc
+
+Returns true if the detected compiler is in the gcc family.
+
+=head2 is_msvc
+
+Returns true if the detected compiler is in the MS VC family.
+
 =cut
 
 use Config ();
@@ -134,11 +142,11 @@ sub _guess_win32 {
     my $c_compiler = $self->{cc};
     $c_compiler = $Config::Config{cc} if not defined $c_compiler;
 
-    if( _cc_is_gcc( $c_compiler ) ) {
+    if( $self->_cc_is_gcc( $c_compiler ) ) {
         $self->{guess} = { extra_cflags => ' -xc++ ',
                            extra_lflags => ' -lstdc++ ',
                            };
-    } elsif( _cc_is_msvc( $c_compiler ) ) {
+    } elsif( $self->_cc_is_msvc( $c_compiler ) ) {
         $self->{guess} = { extra_cflags => ' -TP -EHsc ',
                            extra_lflags => ' msvcprt.lib ',
                            };
@@ -154,7 +162,7 @@ sub _guess_unix {
     my $c_compiler = $self->{cc};
     $c_compiler = $Config::Config{cc} if not defined $c_compiler;
 
-    if( !_cc_is_gcc( $c_compiler ) ) {
+    if( !$self->_cc_is_gcc( $c_compiler ) ) {
         die "Unable to determine a C++ compiler for '$c_compiler'";
     }
 
@@ -178,26 +186,38 @@ sub _capture {
 }
 
 sub _cc_is_msvc {
-    my( $cc ) = @_;
-
-    return $^O =~ /MSWin32/ and File::Basename::basename( $cc ) =~ /^cl/i;
+    my( $self, $cc ) = @_;
+    $self->{is_msvc} = ($^O =~ /MSWin32/ and File::Basename::basename( $cc ) =~ /^cl/i);
+    return $self->{is_msvc};
 }
 
 sub _cc_is_gcc {
-    my( $cc ) = @_;
+    my( $self, $cc ) = @_;
 
+    $self->{is_gcc} = 0;
     my $cc_version = _capture( "$cc --version" );
-    if ($cc_version =~ m/\bg(?:cc|\+\+)/i) { # 3.x, some 4.x
-      return 1;
-    }
-    elsif (scalar( _capture( "$cc" ) =~ m/\bgcc\b/i )) { # 2.95
-      return 1;
-    }
-    elsif ($cc_version =~ m/\bcc\b.*Free Software Foundation/si) { # some 4.x?
-      return 1;
+    if (
+            $cc_version =~ m/\bg(?:cc|\+\+)/i # 3.x, some 4.x
+         || scalar( _capture( "$cc" ) =~ m/\bgcc\b/i ) # 2.95
+         || $cc_version =~ m/\bcc\b.*Free Software Foundation/si # some 4.x?
+       )
+    {
+        $self->{is_gcc} = 1;
     }
 
-    return 0;
+    return $self->{is_gcc};
+}
+
+sub is_gcc {
+    my( $self ) = @_;
+    $self->guess_compiler || die;
+    return $self->{is_gcc};
+}
+
+sub is_msvc {
+    my( $self ) = @_;
+    $self->guess_compiler || die;
+    return $self->{is_msvc};
 }
 
 1;
