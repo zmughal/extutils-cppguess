@@ -193,6 +193,9 @@ sub _cc_is_gcc {
     elsif (scalar( _capture( "$cc" ) =~ m/\bgcc\b/i )) { # 2.95
       return 1;
     }
+    elsif ($cc_version =~ m/\bcc\b.*Free Software Foundation/si) { # some 4.x?
+      return 1;
+    }
 
     return 0;
 }
