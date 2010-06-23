@@ -76,6 +76,7 @@ C<OTHERLDFLAGS> respectively.
 
 use Config ();
 use File::Basename qw();
+use Capture::Tiny 'capture_merged';
 
 our $VERSION = '0.01';
 
@@ -106,6 +107,8 @@ sub guess_compiler {
     if (defined $self->{extra_linker_flags}) {
         $self->{guess}{extra_lflags} .= ' ' . $self->{extra_linker_flags};
     }
+
+    return $self->{guess};
 }
 
 sub makemaker_options {
@@ -161,12 +164,17 @@ sub _guess_unix {
     return 1;
 }
 
-# from Alien::wxWidgets::Utility
+# originally from Alien::wxWidgets::Utility
 
 my $quotes = $^O =~ /MSWin32/ ? '"' : "'";
 
 sub _capture {
-    qx!$^X -e ${quotes}open STDERR, q[>&STDOUT]; exec \@ARGV${quotes} -- $_[0]!;
+    my @cmd = @_;
+    my $out = capture_merged {
+        system(@cmd);
+    };
+    $out = '' if not defined $out;
+    return $out;
 }
 
 sub _cc_is_msvc {
@@ -178,8 +186,15 @@ sub _cc_is_msvc {
 sub _cc_is_gcc {
     my( $cc ) = @_;
 
-    return    scalar( _capture( "$cc --version" ) =~ m/g(?:cc|\+\+)/i ) # 3.x
-           || scalar( _capture( "$cc" ) =~ m/gcc/i );          # 2.95
+    my $cc_version = _capture( "$cc --version" );
+    if ($cc_version =~ m/\bg(?:cc|\+\+)/i) { # 3.x, some 4.x
+      return 1;
+    }
+    elsif (scalar( _capture( "$cc" ) =~ m/\bgcc\b/i )) { # 2.95
+      return 1;
+    }
+
+    return 0;
 }
 
 1;
