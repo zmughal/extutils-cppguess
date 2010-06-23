@@ -80,6 +80,17 @@ Returns true if the detected compiler is in the gcc family.
 
 Returns true if the detected compiler is in the MS VC family.
 
+=head2 add_extra_compiler_flags
+
+Takes a string as argument that is added to the string of extra compiler
+flags.
+
+=head2 add_extra_linker_flags
+
+Takes a string as argument that is added to the string of extra linker
+flags.
+
+
 =cut
 
 use Config ();
@@ -119,21 +130,43 @@ sub guess_compiler {
     return $self->{guess};
 }
 
-sub makemaker_options {
+sub _get_cflags {
     my( $self ) = @_;
     $self->guess_compiler || die;
+    my $cflags = $self->{guess}{extra_cflags};
+    $cflags .= ' ' . $self->{extra_compiler_flags}
+      if defined $self->{extra_compiler_flags};
+    return $cflags;
+}
 
-    return ( CCFLAGS      => $self->{guess}{extra_cflags},
-             dynamic_lib  => { OTHERLDFLAGS => $self->{guess}{extra_lflags} },
+sub _get_lflags {
+    my( $self ) = @_;
+    $self->guess_compiler || die;
+    my $lflags = $self->{guess}{extra_lflags};
+    $lflags .= ' ' . $self->{extra_linker_flags}
+      if defined $self->{extra_linker_flags};
+    return $lflags;
+}
+
+sub makemaker_options {
+    my( $self ) = @_;
+
+    my $lflags = $self->_get_lflags;
+    my $cflags = $self->_get_cflags;
+
+    return ( CCFLAGS      => $cflags,
+             dynamic_lib  => { OTHERLDFLAGS => $lflags },
              );
 }
 
 sub module_build_options {
     my( $self ) = @_;
-    $self->guess_compiler || die;
 
-    return ( extra_compiler_flags => $self->{guess}{extra_cflags},
-             extra_linker_flags   => $self->{guess}{extra_lflags},
+    my $lflags = $self->_get_lflags;
+    my $cflags = $self->_get_cflags;
+
+    return ( extra_compiler_flags => $cflags,
+             extra_linker_flags   => $lflags,
              );
 }
 
@@ -218,6 +251,22 @@ sub is_msvc {
     my( $self ) = @_;
     $self->guess_compiler || die;
     return $self->{is_msvc};
+}
+
+sub add_extra_compiler_flags {
+    my( $self, $string ) = @_;
+    $self->{extra_compiler_flags}
+      = defined($self->{extra_compiler_flags})
+        ? $self->{extra_compiler_flags} . ' ' . $string
+        : $string;
+}
+
+sub add_extra_linker_flags {
+    my( $self, $string ) = @_;
+    $self->{extra_linker_flags}
+      = defined($self->{extra_linker_flags})
+        ? $self->{extra_linker_flags} . ' ' . $string
+        : $string;
 }
 
 1;
