@@ -228,6 +228,21 @@ sub _capture {
     return $out;
 }
 
+# capture the output of a command that is run with piping
+# to stdin of the command. We immediately close the pipe.
+sub _capture_empty_stdin {
+    my( $cmd ) = @_;
+    warn $cmd;
+    my $out = capture_merged {
+        if (open(my $fh, '|-', $cmd)) {
+          close $fh;
+        }
+    };
+    $out = '' if not defined $out;
+    return $out;
+}
+
+
 sub _cc_is_msvc {
     my( $self, $cc ) = @_;
     $self->{is_msvc} = ($^O =~ /MSWin32/ and File::Basename::basename( $cc ) =~ /^cl/i);
@@ -242,7 +257,8 @@ sub _cc_is_gcc {
     if (
             $cc_version =~ m/\bg(?:cc|\+\+)/i # 3.x, some 4.x
          || scalar( _capture( "$cc" ) =~ m/\bgcc\b/i ) # 2.95
-         || $cc_version =~ m/\bcc\b.*Free Software Foundation/si # some 4.x?
+         || scalar(_capture_empty_stdin("$cc -dM -E -") =~ /__GNUC__/) # more or less universal?
+         || scalar($cc_version =~ m/\bcc\b.*Free Software Foundation/si) # some 4.x?
        )
     {
         $self->{is_gcc} = 1;
