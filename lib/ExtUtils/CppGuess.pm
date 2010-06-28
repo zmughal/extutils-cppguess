@@ -232,7 +232,6 @@ sub _capture {
 # to stdin of the command. We immediately close the pipe.
 sub _capture_empty_stdin {
     my( $cmd ) = @_;
-    warn $cmd;
     my $out = capture_merged {
         if (open(my $fh, '|-', $cmd)) {
           close $fh;
