@@ -90,6 +90,16 @@ flags.
 Takes a string as argument that is added to the string of extra linker
 flags.
 
+=head1 AUTHOR
+
+Mattia Barbon <mbarbon@cpan.org>
+
+Steffen Mueller <smueller@cpan.org>
+
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
 
 =cut
 
