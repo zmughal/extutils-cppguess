@@ -29,7 +29,7 @@ sub build_module_build {
     my $cwd = cwd();
     chdir $path;
 
-    my $build_pl = `perl Build.PL 2>&1`;
+    my $build_pl = `$^X Build.PL 2>&1`;
     my $build_pl_ok = $?;
 
     if( $build_pl_ok != 0 ) {
