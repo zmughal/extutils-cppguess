@@ -96,7 +96,9 @@ Mattia Barbon <mbarbon@cpan.org>
 
 Steffen Mueller <smueller@cpan.org>
 
-=head1 LICENSE
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2010-2011 by Mattia Barbon.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -107,7 +109,7 @@ use Config ();
 use File::Basename qw();
 use Capture::Tiny 'capture_merged';
 
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 sub new {
     my( $class, %args ) = @_;
