@@ -2,6 +2,10 @@
 #include <windows.h>
 #endif
 
+#include <string>
+
+typedef std::string std__string;
+
 #include <config.h>
 #include <EXTERN.h>
 #include <perl.h>
@@ -48,10 +52,6 @@
 #undef vfprintf
 #undef write
 #endif // defined( PERL_IMPLICIT_SYS )
-
-#include <string>
-
-typedef std::string std__string;
 
 int silly_test( int value )
 {
