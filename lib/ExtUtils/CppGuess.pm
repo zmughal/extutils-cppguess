@@ -206,6 +206,7 @@ sub _guess_unix {
     $self->{guess} = { extra_cflags => ' -xc++ ',
                        extra_lflags => ' -lstdc++ ',
                        };
+    $self->{guess}{extra_cflags} .= ' -D_FILE_OFFSET_BITS=64' if $Config::Config{ccflags} =~ /-D_FILE_OFFSET_BITS=64/;
     return 1;
 }
 
