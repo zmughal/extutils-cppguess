@@ -1,5 +1,11 @@
 Revision history for Perl extension ExtUtils::CppGuess.
 
+0.05   Tue Feb 15 23:00:00 CEST 2010
+	- Fix test failures on win32 (Shmuel Fomberg)
+
+0.04   Mon Jul 12 18:00:00 CEST 2010
+	- Fix problem with duplicate extra-linker/compiler options
+
 0.03   Thu Jul  1 18:00:00 CEST 2010
 	- Fix tests to use the current perl
         - Make tests use Capture::Tiny

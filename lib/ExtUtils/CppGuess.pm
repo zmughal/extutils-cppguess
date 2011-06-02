@@ -96,7 +96,9 @@ Mattia Barbon <mbarbon@cpan.org>
 
 Steffen Mueller <smueller@cpan.org>
 
-=head1 LICENSE
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2010-2011 by Mattia Barbon.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
@@ -107,7 +109,7 @@ use Config ();
 use File::Basename qw();
 use Capture::Tiny 'capture_merged';
 
-our $VERSION = '0.03';
+our $VERSION = '0.05';
 
 sub new {
     my( $class, %args ) = @_;
@@ -127,14 +129,6 @@ sub guess_compiler {
         $self->_guess_win32() or return();
     } else {
         $self->_guess_unix() or return();
-    }
-
-    if (defined $self->{extra_compiler_flags}) {
-        $self->{guess}{extra_cflags} .= ' ' . $self->{extra_compiler_flags};
-    }
-
-    if (defined $self->{extra_linker_flags}) {
-        $self->{guess}{extra_lflags} .= ' ' . $self->{extra_linker_flags};
     }
 
     return $self->{guess};
