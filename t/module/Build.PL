@@ -9,7 +9,7 @@ my $guess = ExtUtils::CppGuess->new;
 
 my $build = Module::Build->new
   ( module_name     => 'CppGuessTest',
-    abstract        => 'a test module',
+    dist_abstract   => 'a test module',
     license         => 'perl',
     xs_files        => { 'CppGuessTest.xs' => 'lib/CppGuessTest.xs' },
     $guess->module_build_options,
