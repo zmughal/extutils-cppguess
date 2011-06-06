@@ -1,5 +1,9 @@
 Revision history for Perl extension ExtUtils::CppGuess.
 
+0.06   Sun Jun  5 21:00:00 CEST 2011
+	- Fix for -D_FILE_OFFSET_BITS (Tobias Leich)
+          See http://www.cpantesters.org/cpan/report/b6e29992-894c-11e0-b6b1-f9d75287cfae
+
 0.05   Tue Feb 15 23:00:00 CEST 2010
 	- Fix test failures on win32 (Shmuel Fomberg)
 
