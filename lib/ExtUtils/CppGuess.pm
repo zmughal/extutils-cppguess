@@ -96,6 +96,8 @@ Mattia Barbon <mbarbon@cpan.org>
 
 Steffen Mueller <smueller@cpan.org>
 
+Tobias Leich <froggs@cpan.org>
+
 =head1 COPYRIGHT AND LICENSE
 
 Copyright 2010, 2011 by Mattia Barbon.
