@@ -2,6 +2,10 @@
 #include <windows.h>
 #endif
 
+#if defined (__SVR4) && defined (__sun)
+#include <sys/vnode.h>
+#endif
+
 #include <string>
 
 typedef std::string std__string;
