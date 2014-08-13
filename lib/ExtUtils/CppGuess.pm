@@ -115,80 +115,123 @@ our $VERSION = '0.09';
 
 sub new {
     my( $class, %args ) = @_;
-    my $self = bless {
-      cc => $Config::Config{cc},
-      %args
-    }, $class;
+    my $self = bless { %args }, $class;
+
+    # Allow override of default %Config::Config; useful in testing.
+    if( ! exists $self->{config} || ! defined $self->{config} ) {
+      $self->{config} = \%Config::Config;
+    }
+
+    # Allow a 'cc' %args.  If not supplied, pull from {config}, or $Config{cc}.
+    if( ! exists $self->{cc} || ! defined $self->{cc} ) {
+      $self->{cc}
+        = exists $self->{config}{cc} && defined $self->{config}{cc}
+        ? $self->{config}{cc}
+        : $Config::Config{cc};
+    }
+
+    # Set up osname.
+    if( ! exists $self->{os} || ! defined $self->{os} ) {
+      $self->{os}
+        = exists $self->{config}{osname} && defined $self->{config}{osname}
+        ? $self->{config}{osname}
+        : $^O;
+    }
 
     return $self;
 }
 
+# Thus saith the law: All references to %Config::Config shall come through
+# $self->_config.  Accessors shall provide access to key components thereof.
+# Testing shall thus grow stronger, verifying performance for platforms diverse
+# to which access we have not.
+
+sub _config { shift->{config} }
+sub _cc     { shift->{cc}     }
+sub _os     { shift->{os}     }
+
+
 sub guess_compiler {
-    my( $self ) = @_;
+    my $self = shift;
+
     return $self->{guess} if $self->{guess};
 
-    if( $^O =~ /^mswin/i ) {
-        $self->_guess_win32() or return();
+    if( $self->_os =~ /^mswin/i ) {
+        $self->_guess_win32() or return;
     } else {
-        $self->_guess_unix() or return();
+        $self->_guess_unix()  or return;
     }
-
     return $self->{guess};
 }
 
+
 sub _get_cflags {
-    my( $self ) = @_;
-    $self->guess_compiler || die;
+    my $self = shift;
+
+    $self->guess_compiler or die;
+
     my $cflags = $self->{guess}{extra_cflags};
     $cflags .= ' ' . $self->{extra_compiler_flags}
       if defined $self->{extra_compiler_flags};
+
     return $cflags;
 }
 
+
 sub _get_lflags {
-    my( $self ) = @_;
+    my $self = shift;
+
     $self->guess_compiler || die;
+
     my $lflags = $self->{guess}{extra_lflags};
     $lflags .= ' ' . $self->{extra_linker_flags}
       if defined $self->{extra_linker_flags};
+
     return $lflags;
 }
 
+
 sub makemaker_options {
-    my( $self ) = @_;
+    my $self = shift;
 
     my $lflags = $self->_get_lflags;
     my $cflags = $self->_get_cflags;
 
-    return ( CCFLAGS      => $cflags,
-             dynamic_lib  => { OTHERLDFLAGS => $lflags },
-             );
+    return (
+      CCFLAGS      => $cflags,
+      dynamic_lib  => { OTHERLDFLAGS => $lflags },
+    );
 }
+
 
 sub module_build_options {
-    my( $self ) = @_;
+    my $self = shift;
 
     my $lflags = $self->_get_lflags;
     my $cflags = $self->_get_cflags;
 
-    return ( extra_compiler_flags => $cflags,
-             extra_linker_flags   => $lflags,
-             );
+    return (
+      extra_compiler_flags => $cflags,
+      extra_linker_flags   => $lflags,
+    );
 }
 
+
 sub _guess_win32 {
-    my( $self ) = @_;
-    my $c_compiler = $self->{cc};
-    $c_compiler = $Config::Config{cc} if not defined $c_compiler;
+    my $self = shift;
+    my $c_compiler = $self->_cc;
+#    $c_compiler = $Config::Config{cc} if not defined $c_compiler;
 
     if( $self->_cc_is_gcc( $c_compiler ) ) {
-        $self->{guess} = { extra_cflags => ' -xc++ ',
-                           extra_lflags => ' -lstdc++ ',
-                           };
+        $self->{guess} = {
+          extra_cflags => ' -xc++ ',
+          extra_lflags => ' -lstdc++ ',
+        };
     } elsif( $self->_cc_is_msvc( $c_compiler ) ) {
-        $self->{guess} = { extra_cflags => ' -TP -EHsc ',
-                           extra_lflags => ' msvcprt.lib ',
-                           };
+        $self->{guess} = {
+          extra_cflags => ' -TP -EHsc ',
+          extra_lflags => ' msvcprt.lib ',
+        };
     } else {
         die "Unable to determine a C++ compiler for '$c_compiler'";
     }
@@ -196,55 +239,64 @@ sub _guess_win32 {
     return 1;
 }
 
+
 sub _guess_unix {
-    my( $self ) = @_;
-    my $c_compiler = $self->{cc};
-    $c_compiler = $Config::Config{cc} if not defined $c_compiler;
+    my $self = shift;
+    my $c_compiler = $self->_cc;
+#    $c_compiler = $Config::Config{cc} if not defined $c_compiler;
 
     if( !$self->_cc_is_gcc( $c_compiler ) ) {
         die "Unable to determine a C++ compiler for '$c_compiler'";
     }
 
-    $self->{guess} = { extra_cflags => ' -xc++ ',
-                       extra_lflags => ' -lstdc++ ',
-                       };
-    $self->{guess}{extra_cflags} .= ' -D_FILE_OFFSET_BITS=64' if $Config::Config{ccflags} =~ /-D_FILE_OFFSET_BITS=64/;
-    $self->{guess}{extra_lflags} .= ' -lgcc_s' if $^O eq 'netbsd' && $self->{guess}{extra_lflags} !~ /-lgcc_s/;
+    $self->{guess} = {
+      extra_cflags => ' -xc++ ',
+      extra_lflags => ' -lstdc++ ',
+    };
+    $self->{guess}{extra_cflags} .= ' -D_FILE_OFFSET_BITS=64'
+      if $self->_config->{ccflags} =~ /-D_FILE_OFFSET_BITS=64/;
+    $self->{guess}{extra_lflags} .= ' -lgcc_s'
+      if $self->_os eq 'netbsd' && $self->{guess}{extra_lflags} !~ /-lgcc_s/;
+
     return 1;
 }
 
 # originally from Alien::wxWidgets::Utility
-
-my $quotes = $^O =~ /MSWin32/ ? '"' : "'";
+# Why was this hanging around outside of all functions, and without any other
+# use of $quotes?
+# my $quotes = $self->_os =~ /MSWin32/ ? '"' : "'";
 
 sub _capture {
     my @cmd = @_;
-    my $out = capture_merged {
-        system(@cmd);
-    };
+
+    my $out = capture_merged { system(@cmd) };
     $out = '' if not defined $out;
+
     return $out;
 }
 
 # capture the output of a command that is run with piping
 # to stdin of the command. We immediately close the pipe.
 sub _capture_empty_stdin {
-    my( $cmd ) = @_;
+    my $cmd = shift;
     my $out = capture_merged {
-        if (open(my $fh, '|-', $cmd)) {
+        if ( open my $fh, '|-', $cmd ) {
           close $fh;
         }
     };
     $out = '' if not defined $out;
+
     return $out;
 }
 
 
 sub _cc_is_msvc {
     my( $self, $cc ) = @_;
-    $self->{is_msvc} = ($^O =~ /MSWin32/ and File::Basename::basename( $cc ) =~ /^cl/i);
+    $self->{is_msvc}
+      = ($self->_os =~ /MSWin32/ and File::Basename::basename($cc) =~ /^cl/i);
     return $self->{is_msvc};
 }
+
 
 sub _cc_is_gcc {
     my( $self, $cc ) = @_;
@@ -252,37 +304,41 @@ sub _cc_is_gcc {
     $self->{is_gcc} = 0;
     my $cc_version = _capture( "$cc --version" );
     if (
-            $cc_version =~ m/\bg(?:cc|\+\+)/i # 3.x, some 4.x
-         || scalar( _capture( "$cc" ) =~ m/\bgcc\b/i ) # 2.95
-         || scalar(_capture_empty_stdin("$cc -dM -E -") =~ /__GNUC__/) # more or less universal?
-         || scalar($cc_version =~ m/\bcc\b.*Free Software Foundation/si) # some 4.x?
-       )
-    {
-        $self->{is_gcc} = 1;
+         $cc_version =~ m/\bg(?:cc|\+\+)/i # 3.x, some 4.x
+      || scalar( _capture( "$cc" ) =~ m/\bgcc\b/i ) # 2.95
+      || scalar(_capture_empty_stdin("$cc -dM -E -") =~ /__GNUC__/) # more or less universal?
+      || scalar($cc_version =~ m/\bcc\b.*Free Software Foundation/si) # some 4.x?
+    ) {
+      $self->{is_gcc} = 1;
     }
 
     return $self->{is_gcc};
 }
 
+
 sub is_gcc {
-    my( $self ) = @_;
+    my $self = shift;
     $self->guess_compiler || die;
     return $self->{is_gcc};
 }
 
 sub is_msvc {
-    my( $self ) = @_;
+    my $self = shift;
+
     $self->guess_compiler || die;
+
     return $self->{is_msvc};
 }
 
 sub add_extra_compiler_flags {
     my( $self, $string ) = @_;
+
     $self->{extra_compiler_flags}
       = defined($self->{extra_compiler_flags})
         ? $self->{extra_compiler_flags} . ' ' . $string
         : $string;
 }
+
 
 sub add_extra_linker_flags {
     my( $self, $string ) = @_;
@@ -291,5 +347,6 @@ sub add_extra_linker_flags {
         ? $self->{extra_linker_flags} . ' ' . $string
         : $string;
 }
+
 
 1;
