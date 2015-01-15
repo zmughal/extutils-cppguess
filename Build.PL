@@ -6,6 +6,7 @@ use Module::Build;
 my $build = Module::Build->new(
     module_name    => 'ExtUtils::CppGuess',
     license        => 'perl',
+    configure_requires => { 'Module::Build' => 0.42 },
     requires       => {
         'Capture::Tiny' => '0',
         'File::Basename' => '0',
