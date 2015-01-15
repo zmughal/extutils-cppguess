@@ -3,8 +3,8 @@
 use strict;
 use Module::Build;
 
-my $build = Module::Build->new
-  ( module_name    => 'ExtUtils::CppGuess',
+my $build = Module::Build->new(
+    module_name    => 'ExtUtils::CppGuess',
     license        => 'perl',
     requires       => {
         'Capture::Tiny' => '0',
@@ -24,6 +24,11 @@ my $build = Module::Build->new
         'Cwd' => '0',
     },
     add_to_cleanup => [ 't/module_build', 't/makemaker' ],
-    );
+    meta_merge => {
+        resources => {
+            repository => 'git://github.com/tsee/extutils-cppguess'
+        }
+    },
+);
 
 $build->create_build_script;
