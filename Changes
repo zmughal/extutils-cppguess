@@ -1,5 +1,9 @@
 Revision history for Perl extension ExtUtils::CppGuess.
 
+0.08   Thu Jan 15 03:07:38 GMT 2015
+	- Update metadata
+
+
 0.07   Thu Jul  7 17:00:00 CEST 2011
 	- Fix for unknown enum `vtype' on solaris 2.11 (Tobias Leich)
           See http://www.cpantesters.org/cpan/report/a0cca9ee-39e3-11e0-83a5-34754e7aadc9
