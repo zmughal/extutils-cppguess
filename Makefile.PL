@@ -21,6 +21,7 @@ WriteMakefile(
         'ExtUtils::Manifest' => '0',
         'Fatal' => '0',
         'Cwd' => '0',
+        'Data::Dumper' => 0,
     },
     clean => { FILES => 't/module_build t/makemaker' },
     META_MERGE => {
