@@ -1,5 +1,10 @@
 Revision history for Perl extension ExtUtils::CppGuess.
 
+0.09   Sat Apr 11 15:55:49 BST 2015
+
+	- Convert to EUMM
+
+
 0.08   Thu Jan 15 03:07:38 GMT 2015
 	- Update metadata
 
