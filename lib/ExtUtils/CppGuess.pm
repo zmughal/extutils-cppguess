@@ -170,7 +170,8 @@ sub _get_cflags {
 
     $self->guess_compiler or die;
 
-    my $cflags = $self->{guess}{extra_cflags};
+    my $cflags = $self->_config->{ccflags};
+    $cflags .= ' ' . $self->{guess}{extra_cflags};
     $cflags .= ' ' . $self->{extra_compiler_flags}
       if defined $self->{extra_compiler_flags};
 
@@ -253,8 +254,6 @@ sub _guess_unix {
       extra_cflags => ' -xc++ ',
       extra_lflags => ' -lstdc++ ',
     };
-    $self->{guess}{extra_cflags} .= ' -D_FILE_OFFSET_BITS=64'
-      if $self->_config->{ccflags} =~ /-D_FILE_OFFSET_BITS=64/;
     $self->{guess}{extra_lflags} .= ' -lgcc_s'
       if $self->_os eq 'netbsd' && $self->{guess}{extra_lflags} !~ /-lgcc_s/;
 
