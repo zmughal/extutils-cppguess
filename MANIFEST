@@ -2,6 +2,8 @@ Makefile.PL
 Changes
 MANIFEST			This list of files
 README
+META.json
+META.yml
 lib/ExtUtils/CppGuess.pm
 t/001_load.t
 t/010_module_build.t

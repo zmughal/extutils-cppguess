@@ -1,5 +1,8 @@
 Revision history for Perl extension ExtUtils::CppGuess.
 
+0.10   Tue Sep 11 21:15:30 MDT 2015
+    - Config's ccflags must always be used. (bulk88)
+
 0.09   Sat Apr 11 16:05:50 BST 2015
 	- Convert to EUMM
 	- Make tests divulge guessed options for better debugging
