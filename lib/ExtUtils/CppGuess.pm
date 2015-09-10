@@ -12,9 +12,9 @@ ExtUtils::CppGuess - guess C++ compiler and flags
 With L<Extutils::MakeMaker>:
 
     use ExtUtils::CppGuess;
-    
+
     my $guess = ExtUtils::CppGuess->new;
-    
+
     WriteMakefile
       ( # MakeMaker args,
         $guess->makemaker_options,
@@ -23,7 +23,7 @@ With L<Extutils::MakeMaker>:
 With L<Module::Build>:
 
     my $guess = ExtUtils::CppGuess->new;
-    
+
     my $build = Module::Build->new
       ( # Module::Build arguments
         $guess->module_build_options,
@@ -111,7 +111,7 @@ use Config ();
 use File::Basename qw();
 use Capture::Tiny 'capture_merged';
 
-our $VERSION = '0.10';
+our $VERSION = '0.11';
 
 sub new {
     my( $class, %args ) = @_;
@@ -170,9 +170,9 @@ sub _get_cflags {
 
     $self->guess_compiler or die;
 
-    my $cflags = $self->_config->{ccflags};
-    $cflags .= ' ' . $self->{guess}{extra_cflags};
-    $cflags .= ' ' . $self->{extra_compiler_flags}
+    my $cflags =  ' ' . $self->_config->{ccflags};
+    $cflags    .= ' ' . $self->{guess}{extra_cflags};
+    $cflags    .= ' ' . $self->{extra_compiler_flags}
       if defined $self->{extra_compiler_flags};
 
     return $cflags;
