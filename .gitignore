@@ -14,3 +14,7 @@ t/module_build
 pod2htm?.tmp
 *.swp
 *.swo
+ExtUtils-CppGuess-*.tar.gz
+Makefile
+pm_to_blib
+
