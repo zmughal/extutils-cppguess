@@ -1,7 +1,11 @@
 #!/usr/bin/perl -w
 
 use strict;
-use Test::More tests => 1;
+use Test::More;
+BEGIN {
+  plan skip_all => 'no Module::Build' if !eval { require Module::Build; 1 };
+  plan tests => 1;
+}
 use lib 't/lib';
 use TestUtils;
 
