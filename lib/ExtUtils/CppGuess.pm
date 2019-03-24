@@ -119,7 +119,12 @@ sub new {
 
     # Allow override of default %Config::Config; useful in testing.
     if( ! exists $self->{config} || ! defined $self->{config} ) {
-      $self->{config} = \%Config::Config;
+      if ($ExtUtils::MakeMaker::Config::VERSION) {
+        # tricksy hobbitses are overriding Config, go with it
+        $self->{config} = \%ExtUtils::MakeMaker::Config::Config;
+      } else {
+        $self->{config} = \%Config::Config;
+      }
     }
 
     # Allow a 'cc' %args.  If not supplied, pull from {config}, or $Config{cc}.

@@ -6,9 +6,14 @@ matrix:
       env: AUTHOR_TESTING=1 RELEASE_TESTING=1
     - perl: 5.26
       env: COVERAGE=1
+    - perl: 5.26
+      env: CC="clang" # use `clang` instead of `gcc` default
 sudo: false
 before_install:
   - git clone git://github.com/travis-perl/helpers ~/travis-perl-helpers
+  # clang is already installed in Travis-CI environment. Using PERL_MM_OPT does not work with subdirectory Makefile.PLs so we override Config.pm
+  # Also, both $Config{cc} and $Config{ld} need to be set because under ELF environments (such as Travis-CI's Ubuntu), this is what Perl's Config.pm does.
+  - if [ "$CC" == "clang" ]; then mkdir build_aux; echo 'package force_clang; use ExtUtils::MakeMaker::Config; $Config{cc} = $Config{ld} = "clang"; $Config{gccversion} = "4.2.1 Compatible FreeBSD Clang 6.0.1"; 1' > build_aux/force_clang.pm; export PERL5OPT="-I$(pwd)/build_aux -Mforce_clang"; fi
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
