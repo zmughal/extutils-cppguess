@@ -179,6 +179,8 @@ sub _get_cflags {
     $cflags    .= ' ' . $self->{guess}{extra_cflags};
     $cflags    .= ' ' . $self->{extra_compiler_flags}
       if defined $self->{extra_compiler_flags};
+    $cflags    .= ' -Wno-reserved-user-defined-literal'
+      if ($self->_config->{gccversion} || '') =~ /Clang/;
 
     return $cflags;
 }
