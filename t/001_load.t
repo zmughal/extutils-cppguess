@@ -22,3 +22,7 @@ my $config = $guess->_config;
 diag 'Config:', Dumper {
   map { $_=>$config->{$_} } grep /cc|ld/, keys %$config
 };
+
+for (qw(is_msvc is_gcc)) {
+  diag "Method: $_ = ", Dumper $guess->$_;
+}
