@@ -172,17 +172,10 @@ sub _os     { shift->{os}     }
 
 sub guess_compiler {
     my $self = shift;
-
-    return $self->{guess} if $self->{guess};
-
-    if( $self->_os =~ /^mswin/i ) {
-        $self->_guess_win32() or return;
-    } else {
-        $self->_guess_unix()  or return;
-    }
-    return $self->{guess};
+    return $self->{guess} ||= $self->_os =~ /^mswin/i
+      ? $self->_guess_win32
+      : $self->_guess_unix;
 }
-
 
 sub _get_cflags {
     my $self = shift;
@@ -243,42 +236,35 @@ sub _guess_win32 {
     my $self = shift;
     my $c_compiler = $self->_cc;
 #    $c_compiler = $Config::Config{cc} if not defined $c_compiler;
-
     if( $self->_cc_is_gcc( $c_compiler ) ) {
-        $self->{guess} = {
+        return {
           extra_cflags => ' -xc++ ',
           extra_lflags => ' -lstdc++ ',
         };
     } elsif( $self->_cc_is_msvc( $c_compiler ) ) {
-        $self->{guess} = {
+        return {
           extra_cflags => ' -TP -EHsc ',
           extra_lflags => ' msvcprt.lib ',
         };
     } else {
         die "Unable to determine a C++ compiler for '$c_compiler'";
     }
-
-    return 1;
 }
-
 
 sub _guess_unix {
     my $self = shift;
     my $c_compiler = $self->_cc;
 #    $c_compiler = $Config::Config{cc} if not defined $c_compiler;
-
     if( !$self->_cc_is_gcc( $c_compiler ) ) {
         die "Unable to determine a C++ compiler for '$c_compiler'";
     }
-
-    $self->{guess} = {
+    my %guess = (
       extra_cflags => ' -xc++ ',
       extra_lflags => ' -lstdc++ ',
-    };
-    $self->{guess}{extra_lflags} .= ' -lgcc_s'
-      if $self->_os eq 'netbsd' && $self->{guess}{extra_lflags} !~ /-lgcc_s/;
-
-    return 1;
+    );
+    $guess{extra_lflags} .= ' -lgcc_s'
+      if $self->_os eq 'netbsd' && $guess{extra_lflags} !~ /-lgcc_s/;
+    \%guess;
 }
 
 # originally from Alien::wxWidgets::Utility
