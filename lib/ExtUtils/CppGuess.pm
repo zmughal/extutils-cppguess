@@ -157,6 +157,14 @@ sub new {
         : $^O;
     }
 
+    # Set up osvers.
+    if( ! exists $self->{osvers} || ! defined $self->{osvers} ) {
+      $self->{osvers}
+        = exists $self->{config}{osvers} && defined $self->{config}{osvers}
+        ? $self->{config}{osvers}
+        : '';
+    }
+
     return $self;
 }
 
@@ -168,7 +176,7 @@ sub new {
 sub _config { shift->{config} }
 sub _cc     { shift->{cc}     }
 sub _os     { shift->{os}     }
-
+sub _osvers { shift->{osvers} }
 
 sub guess_compiler {
     my $self = shift;
