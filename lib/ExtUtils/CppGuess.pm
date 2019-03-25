@@ -191,7 +191,8 @@ sub _get_cflags {
     $self->guess_compiler or die;
 
     my $cflags =  ' ' . $self->_config->{ccflags};
-    $cflags    .= ' ' . $self->{guess}{extra_cflags};
+    $cflags    .= ' ' . $self->{guess}{extra_cflags}
+      if defined $self->{guess}{extra_cflags};
     $cflags    .= ' ' . $self->{extra_compiler_flags}
       if defined $self->{extra_compiler_flags};
     $cflags    .= ' -Wno-reserved-user-defined-literal'
@@ -246,11 +247,13 @@ sub _guess_win32 {
 #    $c_compiler = $Config::Config{cc} if not defined $c_compiler;
     if( $self->_cc_is_gcc( $c_compiler ) ) {
         return {
+          compiler_command => ($c_compiler eq 'clang' ? 'clang++' : 'g++'),
           extra_cflags => ' -xc++ ',
           extra_lflags => ' -lstdc++ ',
         };
     } elsif( $self->_cc_is_msvc( $c_compiler ) ) {
         return {
+          compiler_command => 'cl',
           extra_cflags => ' -TP -EHsc ',
           extra_lflags => ' msvcprt.lib ',
         };
@@ -266,10 +269,19 @@ sub _guess_unix {
     if( !$self->_cc_is_gcc( $c_compiler ) ) {
         die "Unable to determine a C++ compiler for '$c_compiler'";
     }
-    my %guess = (
-      extra_cflags => ' -xc++ ',
-      extra_lflags => ' -lstdc++ ',
-    );
+    my %guess;
+    if ($self->{os} eq 'freebsd' && $self->{osvers} =~ /^(\d+)/ && $1 >= 10) {
+      %guess = (
+        compiler_command => 'clang++',
+        extra_lflags => '-lc++',
+      );
+    } else {
+      %guess = (
+        compiler_command => ($c_compiler eq 'clang' ? 'clang++' : 'g++'),
+        extra_cflags => ' -xc++ ',
+        extra_lflags => ' -lstdc++ ',
+      );
+    }
     $guess{extra_lflags} .= ' -lgcc_s'
       if $self->_os eq 'netbsd' && $guess{extra_lflags} !~ /-lgcc_s/;
     \%guess;
@@ -363,7 +375,8 @@ sub add_extra_linker_flags {
 
 sub compiler_command {
     my( $self ) = @_;
-    my $cc = $self->_cc;
+    $self->guess_compiler || die;
+    my $cc = $self->{guess}{compiler_command};
     my $cflags = $self->_get_cflags;
     _trim_whitespace(join ' ', $cc, $cflags);
 }
