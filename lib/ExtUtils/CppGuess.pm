@@ -98,6 +98,12 @@ C<extra_compiler_flags>.
 
 Added in 0.13.
 
+=head2 linker_flags
+
+The same as returned as the Module::Build C<extra_linker_flags>.
+
+Added in 0.13.
+
 =head1 AUTHOR
 
 Mattia Barbon <mbarbon@cpan.org>
@@ -372,6 +378,11 @@ sub _trim_whitespace {
   my $string = shift;
   $string =~ s/^\s+|\s+$//g;
   return $string;
+}
+
+sub linker_flags {
+    my( $self ) = @_;
+    _trim_whitespace($self->_get_lflags);
 }
 
 1;
