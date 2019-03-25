@@ -125,7 +125,7 @@ use Config ();
 use File::Basename qw();
 use Capture::Tiny 'capture_merged';
 
-our $VERSION = '0.12';
+our $VERSION = '0.13';
 
 sub new {
     my( $class, %args ) = @_;
