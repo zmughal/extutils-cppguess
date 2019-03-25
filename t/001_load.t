@@ -1,9 +1,7 @@
-#!/usr/bin/perl -w
-
 use strict;
 use warnings;
 use Data::Dumper;
-use Test::More tests => 2;
+use Test::More;
 
 my $MODULE = 'ExtUtils::CppGuess';
 use_ok($MODULE);
@@ -26,3 +24,5 @@ diag 'Config:', Dumper {
 for (qw(is_msvc is_gcc compiler_command linker_flags)) {
   diag "Method: $_ = ", Dumper $guess->$_;
 }
+
+done_testing;

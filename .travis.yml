@@ -17,6 +17,7 @@ before_install:
   - source ~/travis-perl-helpers/init
   - build-perl
   - perl -V
+  - cpan-install ExtUtils::MakeMaker~6.64 # for TEST_REQUIRES
   - build-dist
   - cd $BUILD_DIR             # $BUILD_DIR is set by the build-dist command
 install:
