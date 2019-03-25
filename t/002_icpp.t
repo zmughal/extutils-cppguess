@@ -9,7 +9,7 @@ my @DATA = (
     { os => 'MSWin32', cc => 'cl', config => {ccflags => ''} },
     {
       is_msvc => 1, is_gcc => 0,
-      compiler_command => 'cl    -TP -EHsc',
+      compiler_command => 'cl -TP -EHsc',
       linker_flags => 'msvcprt.lib',
     },
   ],
@@ -17,7 +17,7 @@ my @DATA = (
     { os => 'MSWin32', cc => 'gcc', config => {ccflags => ''} },
     {
       is_msvc => undef, is_gcc => 1,
-      compiler_command => 'g++    -xc++',
+      compiler_command => 'g++ -xc++',
       linker_flags => '-lstdc++',
     },
   ],
@@ -25,7 +25,7 @@ my @DATA = (
     { os => 'freebsd', cc => 'gcc', config => {ccflags => ''}, osvers => 9 },
     {
       is_msvc => undef, is_gcc => 1,
-      compiler_command => 'g++    -xc++',
+      compiler_command => 'g++ -xc++',
       linker_flags => '-lstdc++',
     },
   ],
@@ -33,7 +33,7 @@ my @DATA = (
     { os => 'freebsd', cc => 'gcc', config => {gccversion => 'Clang', ccflags => ''}, osvers => 10 },
     {
       is_msvc => undef, is_gcc => 1,
-      compiler_command => 'clang++   -Wno-reserved-user-defined-literal',
+      compiler_command => 'clang++ -Wno-reserved-user-defined-literal',
       linker_flags => '-lc++',
     },
   ],
@@ -41,15 +41,15 @@ my @DATA = (
     { os => 'netbsd', cc => 'gcc', config => {ccflags => ''} },
     {
       is_msvc => undef, is_gcc => 1,
-      compiler_command => 'g++    -xc++',
-      linker_flags => '-lstdc++  -lgcc_s',
+      compiler_command => 'g++ -xc++',
+      linker_flags => '-lstdc++ -lgcc_s',
     },
   ],
   [
     { os => 'linux', cc => 'clang', config => {gccversion => 'Clang', ccflags => ''} },
     {
       is_msvc => undef, is_gcc => 1,
-      compiler_command => 'clang++    -xc++  -Wno-reserved-user-defined-literal',
+      compiler_command => 'clang++ -xc++ -Wno-reserved-user-defined-literal',
       linker_flags => '-lstdc++',
     },
   ],
@@ -57,7 +57,7 @@ my @DATA = (
     { os => 'linux', cc => 'gcc', config => {ccflags => ''} },
     {
       is_msvc => undef, is_gcc => 1,
-      compiler_command => 'g++    -xc++',
+      compiler_command => 'g++ -xc++',
       linker_flags => '-lstdc++',
     },
   ],

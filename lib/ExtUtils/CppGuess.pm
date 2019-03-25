@@ -186,34 +186,24 @@ sub guess_compiler {
 }
 
 sub _get_cflags {
-    my $self = shift;
-
-    $self->guess_compiler or die;
-
-    my $cflags =  ' ' . $self->_config->{ccflags};
-    $cflags    .= ' ' . $self->{guess}{extra_cflags}
-      if defined $self->{guess}{extra_cflags};
-    $cflags    .= ' ' . $self->{extra_compiler_flags}
-      if defined $self->{extra_compiler_flags};
-    $cflags    .= ' -Wno-reserved-user-defined-literal'
-      if ($self->_config->{gccversion} || '') =~ /Clang/;
-
-    return $cflags;
+  my $self = shift;
+  $self->guess_compiler or die;
+  join ' ', '', map _trim_whitespace($_), grep defined && length,
+    $self->_config->{ccflags},
+    $self->{guess}{extra_cflags},
+    $self->{extra_compiler_flags},
+    (($self->_config->{gccversion} || '') =~ /Clang/ ? '-Wno-reserved-user-defined-literal' : ()),
+    ;
 }
-
 
 sub _get_lflags {
-    my $self = shift;
-
-    $self->guess_compiler || die;
-
-    my $lflags = $self->{guess}{extra_lflags};
-    $lflags .= ' ' . $self->{extra_linker_flags}
-      if defined $self->{extra_linker_flags};
-
-    return $lflags;
+  my $self = shift;
+  $self->guess_compiler || die;
+  join ' ', '', map _trim_whitespace($_), grep defined && length,
+    $self->{guess}{extra_lflags},
+    $self->{extra_linker_flags},
+    ;
 }
-
 
 sub makemaker_options {
     my $self = shift;
@@ -248,14 +238,14 @@ sub _guess_win32 {
     if( $self->_cc_is_gcc( $c_compiler ) ) {
         return {
           compiler_command => ($c_compiler eq 'clang' ? 'clang++' : 'g++'),
-          extra_cflags => ' -xc++ ',
-          extra_lflags => ' -lstdc++ ',
+          extra_cflags => '-xc++',
+          extra_lflags => '-lstdc++',
         };
     } elsif( $self->_cc_is_msvc( $c_compiler ) ) {
         return {
           compiler_command => 'cl',
-          extra_cflags => ' -TP -EHsc ',
-          extra_lflags => ' msvcprt.lib ',
+          extra_cflags => '-TP -EHsc',
+          extra_lflags => 'msvcprt.lib',
         };
     } else {
         die "Unable to determine a C++ compiler for '$c_compiler'";
@@ -278,8 +268,8 @@ sub _guess_unix {
     } else {
       %guess = (
         compiler_command => ($c_compiler eq 'clang' ? 'clang++' : 'g++'),
-        extra_cflags => ' -xc++ ',
-        extra_lflags => ' -lstdc++ ',
+        extra_cflags => '-xc++',
+        extra_lflags => '-lstdc++',
       );
     }
     $guess{extra_lflags} .= ' -lgcc_s'
@@ -360,17 +350,15 @@ sub add_extra_compiler_flags {
     my( $self, $string ) = @_;
 
     $self->{extra_compiler_flags}
-      = defined($self->{extra_compiler_flags})
-        ? $self->{extra_compiler_flags} . ' ' . $string
-        : $string;
+      = join ' ', map _trim_whitespace($_), grep defined && length,
+        $self->{extra_compiler_flags}, $string;
 }
 
 sub add_extra_linker_flags {
     my( $self, $string ) = @_;
     $self->{extra_linker_flags}
-      = defined($self->{extra_linker_flags})
-        ? $self->{extra_linker_flags} . ' ' . $string
-        : $string;
+      = join ' ', map _trim_whitespace($_), grep defined && length,
+        $self->{extra_linker_flags}, $string;
 }
 
 sub compiler_command {
@@ -378,7 +366,7 @@ sub compiler_command {
     $self->guess_compiler || die;
     my $cc = $self->{guess}{compiler_command};
     my $cflags = $self->_get_cflags;
-    _trim_whitespace(join ' ', $cc, $cflags);
+    join ' ', map _trim_whitespace($_), grep defined && length, $cc, $cflags;
 }
 
 sub _trim_whitespace {
