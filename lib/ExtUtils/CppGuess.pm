@@ -90,6 +90,14 @@ flags.
 Takes a string as argument that is added to the string of extra linker
 flags.
 
+=head2 compiler_command
+
+Returns the string that can be passed to C<system> to execute the compiler.
+Will include the flags returned as the Module::Build
+C<extra_compiler_flags>.
+
+Added in 0.13.
+
 =head1 AUTHOR
 
 Mattia Barbon <mbarbon@cpan.org>
@@ -345,7 +353,6 @@ sub add_extra_compiler_flags {
         : $string;
 }
 
-
 sub add_extra_linker_flags {
     my( $self, $string ) = @_;
     $self->{extra_linker_flags}
@@ -354,5 +361,17 @@ sub add_extra_linker_flags {
         : $string;
 }
 
+sub compiler_command {
+    my( $self ) = @_;
+    my $cc = $self->_cc;
+    my $cflags = $self->_get_cflags;
+    _trim_whitespace(join ' ', $cc, $cflags);
+}
+
+sub _trim_whitespace {
+  my $string = shift;
+  $string =~ s/^\s+|\s+$//g;
+  return $string;
+}
 
 1;
