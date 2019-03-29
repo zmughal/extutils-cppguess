@@ -11,13 +11,14 @@ WriteMakefile(
     PREREQ_PM => {
         'Capture::Tiny' => '0',
         'File::Basename' => '0',
+        'File::Spec' => '0',
+        'File::Temp' => '0',
     },
     TEST_REQUIRES  => {
         'Capture::Tiny' => '0',
         'Module::Build' => '0',
         'ExtUtils::MakeMaker' => '0',
         'Test::More' => '0.88',
-        'File::Spec' => '0',
         'ExtUtils::Manifest' => '0',
         'Fatal' => '0',
         'Cwd' => '0',

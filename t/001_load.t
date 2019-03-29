@@ -21,7 +21,10 @@ diag 'Config:', Dumper {
   map { $_=>$config->{$_} } grep /cc|ld/, keys %$config
 };
 
-for (qw(is_msvc is_gcc compiler_command linker_flags)) {
+for (qw(
+  is_msvc is_gcc compiler_command linker_flags
+  iostream_fname cpp_flavor_defs
+)) {
   diag "Method: $_ = ", Dumper $guess->$_;
 }
 

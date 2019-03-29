@@ -108,6 +108,22 @@ The same as returned as the Module::Build C<extra_linker_flags>.
 
 Added in 0.13.
 
+=head2 iostream_fname
+
+Returns the filename to C<#include> to get iostream capability.
+
+Added in 0.15.
+
+=head2 cpp_flavor_defs
+
+Returns the text for a header that C<#define>s
+C<__INLINE_CPP_STANDARD_HEADERS> and C<__INLINE_CPP_NAMESPACE_STD> if
+the standard headers and namespace are available. This is determined by
+trying to compile C++ with C<< #define <iostream> >> - if it succeeds,
+the symbols will be defined, else commented.
+
+Added in 0.15.
+
 =head1 AUTHOR
 
 Mattia Barbon <mbarbon@cpan.org>
@@ -128,6 +144,8 @@ modify it under the same terms as Perl itself.
 use Config ();
 use File::Basename qw();
 use Capture::Tiny 'capture_merged';
+use File::Spec::Functions qw(catfile);
+use File::Temp qw(tempdir);
 
 our $VERSION = '0.14';
 
@@ -379,6 +397,54 @@ sub _trim_whitespace {
 sub linker_flags {
     my( $self ) = @_;
     _trim_whitespace($self->_get_lflags);
+}
+
+sub _to_file {
+  my ($file, @data) = @_;
+  open my $fh, '>', $file
+    or die "open $file: $!\n";
+  print $fh @data or die "write $file: $!\n";
+  close $fh or die "close $file: $!\n";
+}
+
+my $test_cpp_filename = 'ilcpptest';        # '.cpp' appended via open.
+my $test_cpp          = <<'END_TEST_CPP';
+#include <iostream>
+int main(){ return 0; }
+END_TEST_CPP
+
+# returns true if compile succeeded, false if failed
+sub _compile_no_h {
+  my( $self ) = @_;
+  return $self->{no_h_status} if defined $self->{no_h_status};
+  $self->guess_compiler || die;
+  my $dir = tempdir( CLEANUP => 1 );
+  my $file = catfile( $dir, qq{$test_cpp_filename.cpp} );
+  my $exe = catfile( $dir, qq{$test_cpp_filename.exe} );
+  _to_file $file, $test_cpp;
+  my $command = join ' ',
+    $self->compiler_command,
+    ($self->is_msvc ? qq{-Fe:} : qq{-o }) . $exe,
+    $file,
+    ;
+  my $result = system $command;
+  $self->{no_h_status} = ($result == 0);
+}
+
+sub iostream_fname {
+  my( $self ) = @_;
+  'iostream' . ($self->_compile_no_h ? '' : '.h');
+}
+
+sub cpp_flavor_defs {
+  my( $self ) = @_;
+  my $comment = ($self->_compile_no_h ? '' : '//');
+  sprintf <<'END_FLAVOR_DEFINITIONS', $comment, $comment;
+
+%s#define __INLINE_CPP_STANDARD_HEADERS 1
+%s#define __INLINE_CPP_NAMESPACE_STD 1
+
+END_FLAVOR_DEFINITIONS
 }
 
 1;
