@@ -3,6 +3,7 @@ Revision history for Perl extension ExtUtils::CppGuess.
 0.15    
     - iostream_fname, cpp_flavor_defs methods
     - add which actual compiler to use to generated MB and EUMM flags
+    - make the test sensitive to whether to #include with a ".h"
 
 0.14	Mon 25 Mar 21:13:36 GMT 2019
     - add is_clang, unify OS-based detection

@@ -117,6 +117,22 @@ Added in 0.13.
 
 Returns the filename to C<#include> to get iostream capability.
 
+This can be used a bit creatively to be portable in one's XS files,
+as the tests for this module need to be:
+
+  # in Makefile.PL:
+  $guess->add_extra_compiler_flags(
+    '-DINCLUDE_DOT=' .
+    ($guess->iostream_fname =~ /\./ ? 1 : 0)
+  );
+
+  // in your .xs file:
+  #if INCLUDE_DOT
+  #include <string.h>
+  #else
+  #include <string>
+  #endif
+
 Added in 0.15.
 
 =head2 cpp_flavor_defs

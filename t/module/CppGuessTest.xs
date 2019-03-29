@@ -6,7 +6,11 @@
 #include <sys/vnode.h>
 #endif
 
+#if INCLUDE_DOT
+#include <string.h>
+#else
 #include <string>
+#endif
 
 typedef std::string std__string;
 
