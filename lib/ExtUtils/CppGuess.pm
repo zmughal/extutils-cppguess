@@ -58,6 +58,7 @@ These are:
 
     extra_compiler_flags
     extra_linker_flags
+    config => { cc => ... }, # as of 0.15
 
 =head2 makemaker_options
 
@@ -67,6 +68,7 @@ These are:
 
     CCFLAGS
     dynamic_lib => { OTHERLDFLAGS => ... }
+    CC # as of 0.15
 
 If you specify the extra compiler or linker flags in the
 constructor, they'll be merged into C<CCFLAGS> or
@@ -269,6 +271,7 @@ sub makemaker_options {
     return (
       CCFLAGS      => $cflags,
       dynamic_lib  => { OTHERLDFLAGS => $lflags },
+      CC => $self->{guess}{compiler_command},
     );
 }
 
@@ -282,6 +285,7 @@ sub module_build_options {
     return (
       extra_compiler_flags => $cflags,
       extra_linker_flags   => $lflags,
+      config => { cc => $self->{guess}{compiler_command} },
     );
 }
 
