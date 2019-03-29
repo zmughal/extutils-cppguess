@@ -22,7 +22,7 @@ diag 'Config:', Dumper {
 };
 
 for (qw(
-  is_msvc is_gcc compiler_command linker_flags
+  is_msvc is_gcc is_clang compiler_command linker_flags
   iostream_fname cpp_flavor_defs
 )) {
   diag "Method: $_ = ", Dumper $guess->$_;
