@@ -60,6 +60,9 @@ These are:
     extra_linker_flags
     config => { cc => ... }, # as of 0.15
 
+Please note the above may have problems on Perl <= 5.8 with
+L<ExtUtils::CBuilder> <= 0.280230 due to a Perl RE issue.
+
 =head2 makemaker_options
 
 Returns the correct options to the C<WriteMakefile> function of
