@@ -252,7 +252,17 @@ sub guess_compiler {
       extra_lflags => 'msvcprt.lib',
     );
   } else {
-    die "Unable to determine a C++ compiler for '$c_compiler' on ".$self->_os;
+    my $v1 = `$c_compiler -v`;
+    my $v2 = `$c_compiler -V`;
+    my $v3 = `$c_compiler --version`;
+    my $os = $self->_os;
+    die <<EOF;
+Unable to determine a C++ compiler for '$c_compiler' on $os
+Version attempts:
+-v: '$v1'
+-V: '$v2'
+--version: '$v3'
+EOF
   }
   $guess{extra_lflags} .= ' -lgcc_s'
     if $self->_os eq 'netbsd' and
