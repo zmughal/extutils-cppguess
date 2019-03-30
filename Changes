@@ -1,5 +1,8 @@
 Revision history for Perl extension ExtUtils::CppGuess.
 
+0.17    
+    - support Sun Studio compiler family
+
 0.16    Sat 30 Mar 00:09:42 GMT 2019
     - test output more if no clue about compiler
 

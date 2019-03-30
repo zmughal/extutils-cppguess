@@ -22,6 +22,7 @@ diag 'Config:', Dumper {
 };
 
 for (qw(
+  is_sunstudio
   is_msvc is_gcc is_clang compiler_command linker_flags
   iostream_fname cpp_flavor_defs
 )) {

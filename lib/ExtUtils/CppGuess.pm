@@ -89,6 +89,10 @@ Returns true if the detected compiler is in the MS VC family.
 
 Returns true if the detected compiler is in the Clang family.
 
+=head2 is_sunstudio
+
+Returns true if the detected compiler is in the Sun Studio family.
+
 =head2 add_extra_compiler_flags
 
 Takes a string as argument that is added to the string of extra compiler
@@ -221,6 +225,8 @@ sub _cc     { shift->{cc}     }
 sub _os     { shift->{os}     }
 sub _osvers { shift->{osvers} }
 
+# This is IBM's "how to compile on" list with lots of compilers:
+# https://www.ibm.com/support/knowledgecenter/en/SS4PJT_5.2.0/com.ibm.help.cd52.unix.doc/com.ibm.help.cdunix_user.doc/CDU_Compiling_Custom_Programs.html
 sub guess_compiler {
   my $self = shift;
   return $self->{guess} if $self->{guess};
@@ -232,6 +238,12 @@ sub guess_compiler {
     %guess = (
       compiler_command => 'clang++',
       extra_lflags => '-lc++',
+    );
+  } elsif( $self->_cc_is_sunstudio( $c_compiler ) ) {
+    %guess = (
+      compiler_command => 'CC',
+      extra_cflags => '',
+      extra_lflags => '',
     );
   } elsif( $self->_cc_is_clang( $c_compiler ) ) {
     %guess = (
@@ -380,6 +392,19 @@ sub _cc_is_clang {
     return $self->{is_clang};
 }
 
+sub _cc_is_sunstudio {
+    my( $self, $cc ) = @_;
+    $self->{is_sunstudio} = 0;
+    my $cc_version = _capture( "$cc -V" );
+    if (
+         $cc_version =~ m/Sun C/i
+      || $cc =~ /SUNWspro/ # because why would they lie?
+    ) {
+      $self->{is_sunstudio} = 1;
+    }
+    return $self->{is_sunstudio};
+}
+
 sub is_gcc {
     my $self = shift;
     $self->guess_compiler || die;
@@ -396,6 +421,12 @@ sub is_clang {
     my $self = shift;
     $self->guess_compiler || die;
     return $self->{is_clang};
+}
+
+sub is_sunstudio {
+    my $self = shift;
+    $self->guess_compiler || die;
+    return $self->{is_sunstudio};
 }
 
 sub add_extra_compiler_flags {
