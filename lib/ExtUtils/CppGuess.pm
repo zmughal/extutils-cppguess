@@ -290,7 +290,7 @@ sub _get_cflags {
     $self->_config->{ccflags},
     $self->{guess}{extra_cflags},
     $self->{extra_compiler_flags},
-    (($self->_config->{gccversion} || '') =~ /Clang/ ? '-Wno-reserved-user-defined-literal' : ()),
+    ($self->is_clang ? '-Wno-reserved-user-defined-literal' : ()),
     ;
 }
 
@@ -386,6 +386,7 @@ sub _cc_is_clang {
     if (
          $cc_version =~ m/\Aclang/i
       || $cc eq 'clang' # because why would they lie?
+      || (($self->_config->{gccversion} || '') =~ /Clang/),
     ) {
       $self->{is_clang} = 1;
     }
