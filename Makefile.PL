@@ -17,6 +17,7 @@ WriteMakefile(
     TEST_REQUIRES  => {
         'Capture::Tiny' => '0',
         'Module::Build' => '0',
+        'ExtUtils::CBuilder' => '0.280231',
         'ExtUtils::MakeMaker' => '0',
         'Test::More' => '0.88',
         'ExtUtils::Manifest' => '0',
