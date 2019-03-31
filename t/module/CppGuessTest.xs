@@ -14,10 +14,12 @@
 
 typedef std::string std__string;
 
+extern "C" {
 #include <config.h>
 #include <EXTERN.h>
 #include <perl.h>
 #include <XSUB.h>
+}
 
 // Perl likes to pollute your namespace
 #undef bool
