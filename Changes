@@ -1,6 +1,6 @@
 Revision history for Perl extension ExtUtils::CppGuess.
 
-0.18    
+0.18    Sun 31 Mar 17:49:21 BST 2019
     - improve clang detection
 
 0.17    Sat 30 Mar 16:03:52 GMT 2019
