@@ -29,6 +29,7 @@ WriteMakefile(
     META_MERGE => {
       "meta-spec" => { version => 2 },
       resources => {
+        bugtracker => 'https://github.com/tsee/extutils-cppguess/issues',
         repository => {
           type => 'git',
           url => 'git://github.com/tsee/extutils-cppguess',
