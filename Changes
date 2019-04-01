@@ -1,5 +1,8 @@
 Revision history for Perl extension ExtUtils::CppGuess.
 
+0.19    Mon  1 Apr 07:08:46 BST 2019
+    - support clang on Perl 5.14-16 with ExtUtils::ParseXS >= 3.04_01 (yes, really)
+
 0.18    Sun 31 Mar 17:49:21 BST 2019
     - improve clang detection
 
