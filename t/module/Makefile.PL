@@ -12,6 +12,8 @@ my $guess = ExtUtils::CppGuess->new;
 if ($ExtUtils::ParseXS::VERSION > 3.04) {
   if ($] lt '5.016000') {
     $guess->add_extra_compiler_flags('-DCLANG_WORKAROUND_514');
+  } elsif ($] lt '5.018000') {
+    $guess->add_extra_compiler_flags('-DCLANG_WORKAROUND_516');
   }
 }
 

@@ -24,6 +24,13 @@ extern "C" {
 #endif
 #include <EXTERN.h>
 #include <perl.h>
+#ifdef __clang__
+#  ifdef CLANG_WORKAROUND_516
+     /* perl.h before 5.18 or so blow up on clang with dVAR on EU::PXS >= 3.04_01 - this works around */
+#    undef dNOOP
+#    define dNOOP /*EMPTY*/(void)0
+#  endif
+#endif
 #include <XSUB.h>
 }
 
