@@ -13,6 +13,7 @@ WriteMakefile(
         'File::Basename' => '0',
         'File::Spec' => '0',
         'File::Temp' => '0',
+        'ExtUtils::ParseXS' => '3.35',
     },
     TEST_REQUIRES  => {
         'Capture::Tiny' => '0',

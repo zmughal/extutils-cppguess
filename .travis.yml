@@ -6,6 +6,8 @@ matrix:
       env: AUTHOR_TESTING=1 RELEASE_TESTING=1
     - perl: 5.26
       env: COVERAGE=1
+    - perl: 5.14
+      env: CC="clang" # use `clang` instead of `gcc` default
     - perl: 5.26
       env: CC="clang" # use `clang` instead of `gcc` default
 sudo: false
