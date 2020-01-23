@@ -172,7 +172,7 @@ use Capture::Tiny 'capture_merged';
 use File::Spec::Functions qw(catfile);
 use File::Temp qw(tempdir);
 
-our $VERSION = '0.20';
+our $VERSION = '0.21';
 
 sub new {
     my( $class, %args ) = @_;
