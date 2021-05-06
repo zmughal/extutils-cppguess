@@ -483,22 +483,30 @@ my $test_cpp          = <<'END_TEST_CPP';
 int main(){ return 0; }
 END_TEST_CPP
 
+# Compile the given code and returns true on success.
+#
+# Can optionally be given compiler flags.
+sub _can_compile_code {
+  my( $self, $cpp_code, $compiler_flags ) = @_;
+  my $dir = tempdir( CLEANUP => 1 );
+  my $file = catfile( $dir, qq{$test_cpp_filename.cpp} );
+  my $exe = catfile( $dir, qq{$test_cpp_filename.exe} );
+  _to_file $file, $cpp_code;
+  my $command = join ' ',
+    $self->compiler_command,
+    @{ defined $compiler_flags ? $compiler_flags : [] },
+    ($self->is_msvc ? qq{-Fe:} : qq{-o }) . $exe,
+    $file,
+    ;
+  return 0 == system $command;
+}
+
 # returns true if compile succeeded, false if failed
 sub _compile_no_h {
   my( $self ) = @_;
   return $self->{no_h_status} if defined $self->{no_h_status};
   $self->guess_compiler || die;
-  my $dir = tempdir( CLEANUP => 1 );
-  my $file = catfile( $dir, qq{$test_cpp_filename.cpp} );
-  my $exe = catfile( $dir, qq{$test_cpp_filename.exe} );
-  _to_file $file, $test_cpp;
-  my $command = join ' ',
-    $self->compiler_command,
-    ($self->is_msvc ? qq{-Fe:} : qq{-o }) . $exe,
-    $file,
-    ;
-  my $result = system $command;
-  $self->{no_h_status} = ($result == 0);
+  $self->{no_h_status} = $self->_can_compile_code( $test_cpp );
 }
 
 sub iostream_fname {
