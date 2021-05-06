@@ -149,6 +149,29 @@ the symbols will be defined, else commented.
 
 Added in 0.15.
 
+=head2 cpp_standard_flag
+
+  $guess->cpp_standard_flag( $standard_name )
+
+Given a string C<$standard_name> that is currently one of
+
+=over
+
+=item * C<< C++98 >>
+
+=item * C<< C++11 >>
+
+=item * C<< C++14 >>
+
+=item * C<< C++17 >>
+
+=back
+
+returns a string with a flag that can be used to tell the compiler to support
+that version of the C++ standard or dies if version is not supported.
+
+Added in «TODO VERSION».
+
 =head1 AUTHOR
 
 Mattia Barbon <mbarbon@cpan.org>
@@ -523,6 +546,72 @@ sub cpp_flavor_defs {
 %s#define __INLINE_CPP_NAMESPACE_STD 1
 
 END_FLAVOR_DEFINITIONS
+}
+
+# Listed in order by year.
+our @CPP_STANDARDS = (
+  'C++98',
+  'C++11',
+  'C++14',
+  'C++17',
+);
+# Hash of flags for each compiler:
+#
+# Structure
+#  Hash:
+#   - key: <detected compiler name string>
+#   - value:
+#       Hash:
+#         - key: <C++ standard name string>
+#         - value:
+#             ArrayRef[Str]
+#               <list of alternative flags, in preferred order>
+our $CPP_STANDARD_FLAGS = {
+  is_gcc => {
+    'C++98' => [ "-std=c++98" ],
+    'C++11' => [ "-std=c++11", "-std=c++0x" ],
+    'C++14' => [ "-std=c++14", "-std=c++1y" ],
+    'C++17' => [ "-std=c++17", "-std=c++1z" ],
+  },
+  is_clang => {
+    'C++98' => [ "-std=c++98", ],
+    'C++11' => [ "-std=c++11", ],
+    'C++14' => [ "-std=c++14", "-std=c++1y" ],
+    'C++17' => [ "-std=c++17", "-std=c++1z" ],
+  },
+  is_msvc => {
+    # Newer MSVC set C++14 as minimum version.
+    'C++98' => [ "" ],
+    'C++11' => [ "" ],
+    'C++14' => [ "-std:c++14" ],
+    'C++17' => [ "-std:c++17" ],
+  },
+  is_sunstudio => {
+    'C++98' => [ "" ],
+    'C++11' => [ "-std=c++11", "-std=c++0x" ],
+    'C++14' => [ "-std=c++14" ],
+    # No mention of C++17 for Oracle Developer Studio 12.6.
+  },
+};
+
+sub cpp_standard_flag {
+  my ($self, $standard_name) = @_;
+
+  $self->guess_compiler || die;
+  my ($detected_compiler) = grep { $self->{$_} } keys %$CPP_STANDARD_FLAGS;
+
+  die "Unknown standard '$standard_name' for compiler '$detected_compiler'"
+    unless exists $CPP_STANDARD_FLAGS->{$detected_compiler}{$standard_name};
+
+  my $test_flags = $CPP_STANDARD_FLAGS->{$detected_compiler}{$standard_name};
+
+  for my $flag (@$test_flags) {
+    return $flag if $self->_can_compile_code( <<EOF, [ $flag ] );
+int main(){ return 0; }
+EOF
+  }
+
+  die "Compiler '$detected_compiler' does not support any flags for standard '$standard_name'";
 }
 
 1;
