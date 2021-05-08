@@ -27,4 +27,20 @@ subtest "Test non-C++ standard" => sub {
 	ok $@ =~ /Unknown standard/, 'C11 is not a C++ standard';
 };
 
+subtest "Test compiler failure to support known version" => sub {
+	# NOTE Monkey-patching data here.
+	local $ExtUtils::CppGuess::CPP_STANDARD_FLAGS;
+	for my $compiler ( qw(is_gcc is_clang) ) {
+		$ExtUtils::CppGuess::CPP_STANDARD_FLAGS
+			->{$compiler}{'C++unreal'} = [ '-std=c++unreal' ];
+	}
+
+	my $flag = eval {
+		# This will try to use the fake C++unreal flag, but fail.
+		$guess->cpp_standard_flag('C++unreal');
+	};
+
+	ok $@ =~ /does not support/, 'Fake version is not supported by compiler';
+};
+
 done_testing;
