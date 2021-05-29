@@ -170,7 +170,7 @@ Given a string C<$standard_name> that is currently one of
 returns a string with a flag that can be used to tell the compiler to support
 that version of the C++ standard or dies if version is not supported.
 
-Added in «TODO VERSION».
+Added in version v0.22.
 
 =head1 AUTHOR
 

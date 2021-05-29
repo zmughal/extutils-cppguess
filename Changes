@@ -1,3 +1,7 @@
+0.22 «DATE»
+    - Add C++ standard support flag detection.
+      See <https://github.com/tsee/extutils-cppguess/pull/24>.
+
 0.21 2020-01-23
 - no give $Config{ccflags} in Module::Build as add not replace - thanks @xenu
 
