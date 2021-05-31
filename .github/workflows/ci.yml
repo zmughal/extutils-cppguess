@@ -62,8 +62,11 @@ jobs:
           - "5.14"
         include:
           - { os: 'windows-latest', perl: 'strawberry' }
-    name: Perl ${{ matrix.perl }} on ${{ matrix.os }}
+          - { os: 'ubuntu-latest' , perl: '5'         , coverage: true }
+    name: Perl ${{ matrix.perl }} on ${{ matrix.os }} ${{ fromJSON('[ "", "(coverage)" ]')[ matrix.coverage ] }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
       - name: Get dist artifact
         uses: actions/download-artifact@v2
         with:
@@ -86,6 +89,16 @@ jobs:
         run: |
           cpanm --notest --installdeps dist.tar.gz
 
-      - name: Run tests
+      - name: Run tests (no coverage)
+        if: ${{ !matrix.coverage }}
         run:
           cpanm --verbose --test-only dist.tar.gz
+      - name: Run tests (with coverage)
+        if: ${{ matrix.coverage }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cpanm -n Devel::Cover::Report::Coveralls
+          export HARNESS_PERL_SWITCHES="-MDevel::Cover"
+          perl Makefile.PL && make test
+          cover -report Coveralls
