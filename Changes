@@ -1,3 +1,5 @@
+- support environment variables CXX, CXXFLAGS, CXXLDFLAGS - thanks @dpryan79 for suggestion
+
 0.23 2021-05-31
 - added CI - thanks @zmughal
 - now recognises MacOS clang - thanks @xenu

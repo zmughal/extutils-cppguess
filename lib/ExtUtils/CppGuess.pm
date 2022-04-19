@@ -39,6 +39,13 @@ It can generate the necessary options to the L<Module::Build>
 constructor or to L<ExtUtils::MakeMaker>'s C<WriteMakefile>
 function.
 
+=head1 ENVIRONMENT
+
+As of 0.24, the environment variables C<CXX>, C<CXXFLAGS>, C<CXXLDFLAGS>
+define the obvious values, and will be used instead of any detection.
+Supplied arguments to L</new> will still win. The config's ccflags will
+still be added.
+
 =head1 METHODS
 
 =head2 new
@@ -230,6 +237,11 @@ sub _cc     { shift->{cc}     }
 sub _os     { shift->{os}     }
 sub _osvers { shift->{osvers} }
 
+our %ENV2VAL = (
+  CXX => 'compiler_command',
+  CXXFLAGS => 'extra_cflags',
+  CXXLDFLAGS => 'extra_lflags',
+);
 # This is IBM's "how to compile on" list with lots of compilers:
 # https://www.ibm.com/support/knowledgecenter/en/SS4PJT_5.2.0/com.ibm.help.cd52.unix.doc/com.ibm.help.cdunix_user.doc/CDU_Compiling_Custom_Programs.html
 sub guess_compiler {
@@ -270,7 +282,9 @@ sub guess_compiler {
       extra_cflags => '-TP -EHsc',
       extra_lflags => 'msvcprt.lib',
     );
-  } else {
+  }
+  $guess{$ENV2VAL{$_}} = $ENV{$_} for grep defined $ENV{$_}, keys %ENV2VAL;
+  if (!%guess) {
     my $v1 = `$c_compiler -v`;
     my $v2 = `$c_compiler -V`;
     my $v3 = `$c_compiler --version`;
@@ -284,7 +298,7 @@ Version attempts:
 EOF
   }
   $guess{extra_lflags} .= ' -lgcc_s'
-    if $self->_os eq 'netbsd' and
+    if !defined $ENV{CXXLDFLAGS} and $self->_os eq 'netbsd' and
     $guess{compiler_command} =~ /g\+\+/i and
     $guess{extra_lflags} !~ /-lgcc_s/;
   $self->{guess} = \%guess;
