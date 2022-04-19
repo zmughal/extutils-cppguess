@@ -1,3 +1,4 @@
+0.24 2022-04-19
 - support environment variables CXX, CXXFLAGS, CXXLDFLAGS - thanks @dpryan79 for suggestion
 
 0.23 2021-05-31
