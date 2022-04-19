@@ -199,10 +199,10 @@ our $VERSION = '0.23';
 
 sub new {
     my( $class, %args ) = @_;
-    my $self = bless { %args }, $class;
+    my $self = bless \%args, $class;
 
     # Allow override of default %Config::Config; useful in testing.
-    if( ! exists $self->{config} || ! defined $self->{config} ) {
+    if( !defined $self->{config} ) {
       if ($ExtUtils::MakeMaker::Config::VERSION) {
         # tricksy hobbitses are overriding Config, go with it
         $self->{config} = \%ExtUtils::MakeMaker::Config::Config;
@@ -211,30 +211,12 @@ sub new {
       }
     }
 
-    # Allow a 'cc' %args.  If not supplied, pull from {config}, or $Config{cc}.
-    if( ! exists $self->{cc} || ! defined $self->{cc} ) {
-      $self->{cc}
-        = exists $self->{config}{cc} && defined $self->{config}{cc}
-        ? $self->{config}{cc}
-        : $Config::Config{cc};
+    for (['cc','cc',$Config::Config{cc}], ['os','osname',$^O], ['osvers','osvers','']) {
+      my ($key, $confkey, $fallback) = @$_;
+      next if defined $self->{$key};
+      $self->{$key} =
+        defined $self->{config}{$confkey} ? $self->{config}{$confkey} : $fallback;
     }
-
-    # Set up osname.
-    if( ! exists $self->{os} || ! defined $self->{os} ) {
-      $self->{os}
-        = exists $self->{config}{osname} && defined $self->{config}{osname}
-        ? $self->{config}{osname}
-        : $^O;
-    }
-
-    # Set up osvers.
-    if( ! exists $self->{osvers} || ! defined $self->{osvers} ) {
-      $self->{osvers}
-        = exists $self->{config}{osvers} && defined $self->{config}{osvers}
-        ? $self->{config}{osvers}
-        : '';
-    }
-
     return $self;
 }
 
