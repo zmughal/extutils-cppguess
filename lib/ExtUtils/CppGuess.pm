@@ -41,10 +41,9 @@ function.
 
 =head1 ENVIRONMENT
 
-As of 0.24, the environment variables C<CXX>, C<CXXFLAGS>, C<CXXLDFLAGS>
-define the obvious values, and will be used instead of any detection.
-Supplied arguments to L</new> will still win. The config's ccflags will
-still be added.
+As of 0.24, the environment variable C<CXX>
+defines the obvious value, and will be used instead of any detection.
+Supplied arguments to L</new> will still win.
 
 =head1 METHODS
 
@@ -239,8 +238,6 @@ sub _osvers { shift->{osvers} }
 
 our %ENV2VAL = (
   CXX => 'compiler_command',
-  CXXFLAGS => 'extra_cflags',
-  CXXLDFLAGS => 'extra_lflags',
 );
 # This is IBM's "how to compile on" list with lots of compilers:
 # https://www.ibm.com/support/knowledgecenter/en/SS4PJT_5.2.0/com.ibm.help.cd52.unix.doc/com.ibm.help.cdunix_user.doc/CDU_Compiling_Custom_Programs.html
@@ -298,7 +295,7 @@ Version attempts:
 EOF
   }
   $guess{extra_lflags} .= ' -lgcc_s'
-    if !defined $ENV{CXXLDFLAGS} and $self->_os eq 'netbsd' and
+    if $self->_os eq 'netbsd' and
     $guess{compiler_command} =~ /g\+\+/i and
     $guess{extra_lflags} !~ /-lgcc_s/;
   $self->{guess} = \%guess;

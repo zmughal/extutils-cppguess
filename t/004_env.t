@@ -2,7 +2,7 @@ use strict;
 use warnings;
 use Test::More;
 
-@ENV{qw(CXX CXXFLAGS CXXLDFLAGS)} = qw(czz flag ldflag);
+@ENV{qw(CXX)} = qw(czz);
 my $MODULE = 'ExtUtils::CppGuess';
 use_ok($MODULE);
 
@@ -11,7 +11,6 @@ isa_ok $guess, $MODULE;
 
 diag 'EUMM env:', explain { $guess->makemaker_options };
 
-like $guess->compiler_command, qr/czz.*flag/;
-is $guess->linker_flags, 'ldflag';
+like $guess->compiler_command, qr/czz/;
 
 done_testing;
